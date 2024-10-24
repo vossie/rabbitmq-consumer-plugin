@@ -45,12 +45,22 @@
         ~ hpi-plugin.version: The HPI Maven Plugin version used by the plugin..
         ~ stapler-plugin.version: The Stapler Maven plugin version required by the plugin.
     -->
-    <jmockit.version>1.38</jmockit.version>
-    <amqp.client.version>3.4.1</amqp.client.version>
-    <commons.validator.version>1.6</commons.validator.version>
+    <jmockit.version>1.49</jmockit.version>
+    <amqp.client.version>5.12.0</amqp.client.version>
+    <commons.validator.version>1.9.0</commons.validator.version>
     <commons.digester.version>2.1</commons.digester.version>
-    <commons.lang3.version>3.7</commons.lang3.version>
+    <commons.lang3.version>3.17.0</commons.lang3.version>
   </properties>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-api</artifactId>
+        <version>1.7.30</version> <!-- Choose a compatible version -->
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 
   <dependencies>
     <dependency>
@@ -63,6 +73,12 @@
       <groupId>com.rabbitmq</groupId>
       <artifactId>amqp-client</artifactId>
       <version>${amqp.client.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.slf4j</groupId>
+          <artifactId>slf4j-api</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>commons-validator</groupId>
@@ -82,7 +98,7 @@
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
-      <version>${slf4jVersion}</version>
+<!--      <version>${slf4jVersion}</version>-->
     </dependency>
   </dependencies>
 
@@ -92,8 +108,8 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
         <configuration>
-          <source>1.7</source>
-          <target>1.7</target>
+          <source>17</source>
+          <target>17</target>
         </configuration>
       </plugin>
       <plugin>
