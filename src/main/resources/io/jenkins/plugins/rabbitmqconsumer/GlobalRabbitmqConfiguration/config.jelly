@@ -44,7 +44,7 @@
     <f:entry title="${%Supervisory Period}" field="watchdogPeriod">
       <f:textbox />
     </f:entry>
-    <f:validateButton title="${%Test Connection}" progress="${%Testing...}" method="testConnection" with="serviceUri" />
+    <f:validateButton title="${%Test Connection}" progress="${%Testing...}" method="testConnection" with="serviceUri,credentialsId" />
     <f:entry title="${%Queues}">
       <f:repeatable field="consumeItems">
         <table width="100%">

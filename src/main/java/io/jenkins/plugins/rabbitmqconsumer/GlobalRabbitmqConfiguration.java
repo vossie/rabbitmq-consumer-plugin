@@ -6,6 +6,7 @@ import hudson.ExtensionList;
 import hudson.util.ListBoxModel;
 import hudson.util.FormValidation;
 
+import jenkins.model.Jenkins;
 import net.sf.json.JSONObject;
 import jenkins.model.GlobalConfiguration;
 import org.apache.commons.lang.StringUtils;
@@ -25,6 +26,7 @@ import com.rabbitmq.client.PossibleAuthenticationFailureException;
 import com.cloudbees.plugins.credentials.CredentialsMatchers;
 import com.cloudbees.plugins.credentials.CredentialsProvider;
 import com.cloudbees.plugins.credentials.common.StandardUsernamePasswordCredentials;
+import org.kohsuke.stapler.verb.POST;
 
 import java.util.List;
 import java.util.Objects;
@@ -136,7 +138,10 @@ public class GlobalRabbitmqConfiguration extends GlobalConfiguration {
      *            the label.
      * @return FormValidation object that indicates ok or warning.
      */
+    @POST
     public FormValidation doCheckLabel(@QueryParameter String value) {
+        Jenkins.get().checkPermission(Jenkins.ADMINISTER); // Ensure proper permission is granted
+
         if (StringUtils.isEmpty(value)) {
             return FormValidation.warning("Please specify a label.");
         }
@@ -225,6 +230,27 @@ public class GlobalRabbitmqConfiguration extends GlobalConfiguration {
         );
 
         return CredentialsMatchers.firstOrNull(credentials, CredentialsMatchers.withId(getCredentialsId()));
+    }
+
+    /**
+     * Gets the credentials.
+     *
+     * @return the credentials.
+     */
+    private StandardUsernamePasswordCredentials getCredentials(String tmpCredentialsId) {
+        if(Objects.isNull(tmpCredentialsId)) {
+            Logger.getLogger(GlobalRabbitmqConfiguration.class.getName()).warning("Credentials ID is null");
+            return null;
+        }
+
+        List<StandardUsernamePasswordCredentials> credentials = CredentialsProvider.lookupCredentialsInItemGroup(
+                StandardUsernamePasswordCredentials.class,
+                null,
+                null,
+                Collections.emptyList()
+        );
+
+        return CredentialsMatchers.firstOrNull(credentials, CredentialsMatchers.withId(tmpCredentialsId));
     }
 
     /**
@@ -340,7 +366,10 @@ public class GlobalRabbitmqConfiguration extends GlobalConfiguration {
      *            the URI.
      * @return FormValidation object that indicates ok or error.
      */
+    @POST
     public FormValidation doCheckServiceUri(@QueryParameter String value) {
+        Jenkins.get().checkPermission(Jenkins.ADMINISTER); // Ensure proper permission is granted
+
         String val = org.apache.commons.lang3.StringUtils.stripToNull(value);
 
         if (val == null || Validators.isValidAMQPUrl(val)) {
@@ -357,12 +386,15 @@ public class GlobalRabbitmqConfiguration extends GlobalConfiguration {
      * @return FormValidation object that indicates ok or error.
      * @throws ServletException exception for servlet.
      */
-    public FormValidation doTestConnection(@QueryParameter("serviceUri") String serviceUri) throws ServletException {
+    @POST
+    public FormValidation doTestConnection(@QueryParameter("serviceUri") String serviceUri, @QueryParameter("credentialsId") String credentialsId) throws ServletException {
+        Jenkins.get().checkPermission(Jenkins.ADMINISTER); // Ensure proper permission is granted
+
         String uri = org.apache.commons.lang3.StringUtils.strip(org.apache.commons.lang3.StringUtils.stripToNull(serviceUri), "/");
-        LOGGER.info("Testing connection to " + uri);
+
         if (uri != null && Validators.isValidAMQPUrl(uri)) {
             try {
-                final var credentials = getCredentials();
+                final var credentials = getCredentials(credentialsId);
 
                 if(credentials == null || credentials.getUsername() == null || credentials.getPassword() == null) {
                     LOGGER.warning("Credentials are null");
