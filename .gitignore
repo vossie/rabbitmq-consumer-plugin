@@ -4,5 +4,7 @@ work/
 .classpath
 .project
 .settings/
+.mvn
+.github
 *.idea/
 

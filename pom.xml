@@ -1,15 +1,19 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
+
   <parent>
     <groupId>org.jenkins-ci.plugins</groupId>
     <artifactId>plugin</artifactId>
-    <version>3.2</version><!-- which version of Jenkins is this plugin built against? -->
+    <version>4.85</version><!-- which version of Jenkins is this plugin built against? -->
     <relativePath />
   </parent>
 
+  <groupId>io.jenkins.plugins</groupId>
   <artifactId>rabbitmq-consumer</artifactId>
-  <version>2.9-SNAPSHOT</version>
+  <version>${revision}${changelist}</version>
   <packaging>hpi</packaging>
+
   <name>RabbitMQ Consumer Plugin</name>
   <description>A plugin that consume messages from RabbitMQ then deliver listeners.</description>
   <url>http://wiki.jenkins-ci.org/display/JENKINS/RabbitMQ+Consumer+Plugin</url>
@@ -33,72 +37,75 @@
     </developer>
   </developers>
 
+  <scm>
+    <connection>scm:git:https://github.com/jenkinsci/rabbitmq-consumer-plugin.git</connection>
+    <developerConnection>scm:git:https://github.com/jenkinsci/rabbitmq-consumer-plugin.git</developerConnection>
+    <url>https://github.com/jenkinsci/rabbitmq-consumer-plugin</url>
+    <tag>HEAD</tag>
+  </scm>
+
   <properties>
-    <!-- Baseline Jenkins version you use to build the plugin. Users must have this version or newer to run. -->
-    <jenkins.version>2.7.1</jenkins.version>
-    <!-- Java Level to use. Java 7 required when using core >= 1.612 -->
-    <java.level>7</java.level>
-    <!-- Jenkins Test Harness version you use to test the plugin. -->
-    <!-- For Jenkins version >= 1.580.1 use JTH 2.x or higher. -->
-    <!-- <jenkins-test-harness.version>2.13</jenkins-test-harness.version> -->
-    <!-- Other properties you may want to use:
-        ~ hpi-plugin.version: The HPI Maven Plugin version used by the plugin..
-        ~ stapler-plugin.version: The Stapler Maven plugin version required by the plugin.
-    -->
-    <jmockit.version>1.49</jmockit.version>
-    <amqp.client.version>5.12.0</amqp.client.version>
-    <commons.validator.version>1.9.0</commons.validator.version>
-    <commons.digester.version>2.1</commons.digester.version>
+    <revision>2.11</revision>
+    <changelist>-SNAPSHOT</changelist>
+
+    <!-- https://www.jenkins.io/doc/developer/plugin-development/choosing-jenkins-baseline/ -->
+    <jenkins.version>2.440.3</jenkins.version>
+    <spotless.check.skip>false</spotless.check.skip>
+
+    <amqp-client.version>5.22.0</amqp-client.version>
     <commons.lang3.version>3.17.0</commons.lang3.version>
+    <jmockit.version>1.49</jmockit.version>
   </properties>
 
   <dependencyManagement>
     <dependencies>
       <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-api</artifactId>
-        <version>1.7.30</version> <!-- Choose a compatible version -->
+        <groupId>io.jenkins.tools.bom</groupId>
+        <artifactId>bom-2.440.x</artifactId>
+        <version>3193.v330d8248d39e</version>
+        <type>pom</type>
+        <scope>import</scope>
       </dependency>
     </dependencies>
   </dependencyManagement>
 
   <dependencies>
     <dependency>
-      <groupId>org.jmockit</groupId>
-      <artifactId>jmockit</artifactId>
-      <version>${jmockit.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>com.rabbitmq</groupId>
       <artifactId>amqp-client</artifactId>
-      <version>${amqp.client.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>org.slf4j</groupId>
-          <artifactId>slf4j-api</artifactId>
-        </exclusion>
-      </exclusions>
+      <version>${amqp-client.version}</version>
     </dependency>
+
     <dependency>
-      <groupId>commons-validator</groupId>
-      <artifactId>commons-validator</artifactId>
-      <version>${commons.validator.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>commons-digester</groupId>
-      <artifactId>commons-digester</artifactId>
-      <version>${commons.digester.version}</version>
-    </dependency>
-	  <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-lang3</artifactId>
       <version>${commons.lang3.version}</version>
     </dependency>
+
+    <!-- Credentials -->
+
     <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-<!--      <version>${slf4jVersion}</version>-->
+      <groupId>org.jenkins-ci.plugins</groupId>
+      <artifactId>credentials</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jenkins-ci.plugins</groupId>
+      <artifactId>credentials-binding</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jenkins-ci.plugins</groupId>
+      <artifactId>plain-credentials</artifactId>
+    </dependency>
+
+    <!-- Tests-->
+
+    <dependency>
+      <groupId>org.jmockit</groupId>
+      <artifactId>jmockit</artifactId>
+      <version>${jmockit.version}</version>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 
@@ -144,13 +151,6 @@
       </plugin>
     </plugins>
   </build>
-
-  <scm>
-    <connection>scm:git:https://github.com/jenkinsci/rabbitmq-consumer-plugin.git</connection>
-    <developerConnection>scm:git:https://github.com/jenkinsci/rabbitmq-consumer-plugin.git</developerConnection>
-    <url>https://github.com/jenkinsci/rabbitmq-consumer-plugin</url>
-    <tag>HEAD</tag>
-  </scm>
 
   <repositories>
     <repository>
